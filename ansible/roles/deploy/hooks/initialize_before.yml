@@ -1,0 +1,41 @@
+---
+- name: Create apache_network variable for {{ env }} environnement
+  set_fact:
+    apache_network: "{% if env == 'staging' %} 'ot_staging_network' {% elif env == 'production' %} 'ot_network' {% endif %}"
+
+# https://stackoverflow.com/questions/41667864/can-the-templates-module-handle-multiple-templates-directories
+- name: Ensure directory structure exists - (Docker-Compose Directories)
+  file:
+    path: "{{ local_project_root }}/{{ item.path }}"
+    state: directory
+    group: "{{ web_group }}"
+    owner: "{{ web_user }}"
+  with_filetree: "{{ docker_compose_templates_source }}"
+  when: item.state == 'directory'
+
+- name: Ensure files are populated from templates - (Docker-Compose Files)
+  template:
+    src: "{{ item.src }}"
+    dest: '{{ local_project_root }}/{{ item.path | regex_replace("\.j2$", "") }}'
+    group: "{{ web_group }}"
+    owner: "{{ web_user }}"
+  with_filetree: "{{ docker_compose_templates_source }}"
+  when: item.state == 'file'
+
+- name: Create and start apache-deploy service
+  docker_compose:
+    project_src: "{{ local_project_root }}"
+    restarted: yes
+    state: present
+    services:
+      - apache-deploy
+
+- name: Add "{{ deploy_container_name }}" container to inventory
+  become: true
+  add_host:
+    name: "{{ deploy_container_name }}"
+    ansible_connection: docker
+    ansible_docker_extra_args: "-H=tcp://{{docker_forward_socket_host}}:{{ docker_forward_socket_port }}"
+    ansible_python_interpreter: /usr/bin/python
+  changed_when: false
+  tags: docker-test

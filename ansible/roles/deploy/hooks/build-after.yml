@@ -1,0 +1,82 @@
+---
+- name: Check for composer.json in project root or project_subtree_path
+  delegate_to: "{{ deploy_container_name }}"
+  stat:
+    path: "{{ deploy_helper.new_release_path }}/composer.json"
+  register: composer_json
+
+- name: Fail if composer.json not found
+  delegate_to: "{{ deploy_container_name }}"
+  fail:
+    msg: "Unable to find a `composer.json` file in the root of '{{ deploy_helper.new_release_path }}'. Make sure your repo has a `composer.json` file in its root or edit `repo_subtree_path` for '{{ site }}' in `my_sites.yml` so it points to the directory with a `composer.json` file."
+  when: not composer_json.stat.exists
+
+- name: Check for package.json in project root or project_subtree_path
+  delegate_to: "{{ deploy_container_name }}"
+  stat:
+    path: "{{ deploy_helper.new_release_path }}/package.json"
+  register: package_json
+
+- name: Fail if package.json not found
+  delegate_to: "{{ deploy_container_name }}"
+  fail:
+    msg: "Unable to find a `package.json` file in the root of '{{ deploy_helper.new_release_path }}'. Make sure your repo has a `package.json` file in its root or edit `repo_subtree_path` for '{{ site }}' in `my_sites.yml` so it points to the directory with a `package.json` file."
+  when: not composer_json.stat.exists
+
+- name: Setup composer authentications
+  delegate_to: "{{ deploy_container_name }}"
+  composer:
+    command: config
+    arguments: --auth http-basic.{{ composer_authentication.hostname }} {{ composer_authentication.username }} {{ composer_authentication.password }}
+    working_dir: "{{ deploy_helper.new_release_path }}"
+  #no_log: true
+  changed_when: false
+  loop: "{{ composer_authentications }}"
+  loop_control:
+    loop_var: composer_authentication
+    label: "{{ composer_authentication.hostname }}"
+  when:
+    - composer_authentication.hostname is defined and composer_authentication.hostname != ""
+    - composer_authentication.username is defined and composer_authentication.username != ""
+    - composer_authentication.password is defined and composer_authentication.password != ""
+
+# TODO change this to ansible composer module
+- name: Install production composer dependencies
+  delegate_to: "{{ deploy_container_name }}"
+  shell: "composer install --optimize-autoloader --no-dev"
+  args:
+    chdir: "{{ deploy_helper.new_release_path }}"
+  when: env == 'production'
+
+- name: Install developpement composer dependencies
+  delegate_to: "{{ deploy_container_name }}"
+  shell: "composer install"
+  args:
+    chdir: "{{ deploy_helper.new_release_path }}"
+  when: env == 'staging'
+
+- name: Build FOS JS routes
+  delegate_to: "{{ deploy_container_name }}"
+  shell: "bin/console fos:js-routing:dump --format=json --target=public/js/fos_js_routes.json"
+  args:
+    chdir: "{{ deploy_helper.new_release_path }}"
+
+- name: Install front dependencies
+  delegate_to: "{{ deploy_container_name }}"
+  shell: "yarn install"
+  args:
+    chdir: "{{ deploy_helper.new_release_path }}"
+
+- name: Build front production assets
+  delegate_to: "{{ deploy_container_name }}"
+  shell: "yarn run production"
+  args:
+    chdir: "{{ deploy_helper.new_release_path }}"
+  when: env == 'production'
+
+- name: Build front developpement assets
+  delegate_to: "{{ deploy_container_name }}"
+  shell: "yarn run dev"
+  args:
+    chdir: "{{ deploy_helper.new_release_path }}"
+  when: env == 'staging'

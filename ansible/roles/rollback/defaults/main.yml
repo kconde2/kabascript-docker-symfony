@@ -1,0 +1,2 @@
+project_root: "/sapp"
+project_current_path: "{{ my_sites[site].current_path | default('current') }}"

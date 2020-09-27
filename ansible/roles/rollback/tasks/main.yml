@@ -1,0 +1,71 @@
+---
+- import_tasks: add-host.yml
+
+- name: Get real path of current symlinked release
+  delegate_to: "{{ deploy_container_name }}"
+  command: "readlink {{ project_current_path }}"
+  args:
+    chdir: "{{ project_root }}"
+  register: current_release_readlink_result
+  changed_when: false
+
+- name: Clean up old and failed releases
+  delegate_to: "{{ deploy_container_name }}"
+  deploy_helper:
+    state: clean
+    path: "{{ project_root }}"
+    current_path: "{{ project_current_path }}"
+    release: "{{ current_release_readlink_result.stdout }}"
+    keep_releases: "{{ project.deploy_keep_releases | default(deploy_keep_releases | default(omit)) }}"
+
+- import_tasks: user-release.yml
+  when: release is defined
+
+- import_tasks: prior-release.yml
+  when: release is not defined
+
+- name: Link 'current' directory to target release
+  delegate_to: "{{ deploy_container_name }}"
+  file:
+    path: "{{ project_root }}/{{ project_current_path }}"
+    src: "{{ new_release_path }}"
+    state: link
+
+- name: Write unfinished file to old symlinked release
+  delegate_to: "{{ deploy_container_name }}"
+  file:
+    path: "{{ current_release_readlink_result.stdout }}/DEPLOY_UNFINISHED"
+    state: touch
+
+- name: Clear application cache
+  delegate_to: "{{ deploy_container_name }}"
+  shell: "bin/console cache:clear"
+  args:
+    chdir: "{{ current_release_readlink_result.stdout }}"
+  register: cache_clear_result_1
+  ignore_errors: no
+
+- name: Warmup application cache
+  delegate_to: "{{ deploy_container_name }}"
+  shell: "bin/console cache:warmup"
+  args:
+    chdir: "{{ current_release_readlink_result.stdout }}"
+  register: cache_clear_result_2
+  ignore_errors: no
+
+- name: Restart apache services
+  docker_compose:
+    project_src: "{{ local_project_root }}"
+    restarted: yes
+    state: present
+    remove_orphans: yes
+    services:
+      - apache
+
+- name: Stop apache deploy service
+  docker_compose:
+    project_src: "{{ local_project_root }}"
+    stopped: yes
+    state: present
+    services:
+      - apache-deploy

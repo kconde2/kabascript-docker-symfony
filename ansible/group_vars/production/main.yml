@@ -1,0 +1,10 @@
+my_sites:
+  example.com:
+    repo: git@gitlab.com:example/example.git # replace with your Git repo URL
+    repo_subtree_path: "app" # app, api, etc...
+    branch: master
+    keep_releases: 4
+    env:
+      APP_ENV: prod
+      APP_DEBUG: 0
+      DATABASE_URL: "mysql://root:{{ vault.db_passwords.mysql_password | urlencode() }}@mysql:3306/example_production"

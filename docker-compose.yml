@@ -1,0 +1,14 @@
+version: "3"
+
+services:
+    ansible:
+        build:
+            context: .
+            dockerfile: ./docker/ansible-dev/Dockerfile
+        working_dir: /root/ansible
+        volumes:
+            - ./ansible:/root/ansible
+            - ~/.ssh:/tmp/.ssh:ro
+        command: tail -f /dev/null && /bin/mount-ssh.sh
+        environment:
+            ANSIBLE_STDOUT_CALLBACK: debug

@@ -1,0 +1,26 @@
+---
+- name: Run the migrations
+  delegate_to: "{{ deploy_container_name }}"
+  shell: "bin/console doctrine:migrations:migrate --no-interaction"
+  args:
+    chdir: "{{ deploy_helper.new_release_path }}"
+
+- name: Create and start apache service
+  docker_compose:
+    project_src: "{{ local_project_root }}"
+    restarted: yes
+    state: present
+    services:
+      - apache
+  tags:
+     - sf_start
+
+- name: Stop apache deploy service
+  docker_compose:
+    project_src: "{{ local_project_root }}"
+    stopped: yes
+    state: present
+    services:
+      - apache-deploy
+  tags:
+     - sf_stop_deploy

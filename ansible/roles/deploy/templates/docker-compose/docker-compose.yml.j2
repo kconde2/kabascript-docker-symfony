@@ -1,0 +1,47 @@
+version: '3.8'
+
+x-network: &network
+    networks:
+        - default
+
+services:
+  apache:
+    build: ./docker/apache
+    container_name: "{{ app_container_name }}"
+    working_dir: "{{ docker_project_root }}/current"
+    volumes:
+      - ./docker/apache/apache2.conf:/etc/apache2/conf-enabled/apache2.conf:ro
+      - ./docker/php/php.ini:/usr/local/etc/php/php.ini
+      - ./:{{ docker_project_root }}
+    expose:
+      - 80
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.{{ apache_label }}.rule=Host(`{{ site }}`)"
+      - "traefik.http.routers.{{ apache_label }}.tls.certresolver=leresolver"
+      - "traefik.http.routers.{{ apache_label }}.entrypoints=websecure"
+{% if env == 'staging' %}
+      # Authentication
+      - traefik.http.routers.{{ apache_label }}.middlewares={{ apache_label }}_auth
+      - traefik.http.middlewares.{{ apache_label }}_auth.basicauth.users={{ apache_auth }}
+{% endif %}
+    <<: *network
+
+  apache-deploy:
+    build: ./docker/apache
+    container_name: "{{ deploy_container_name }}"
+    working_dir: "{{ docker_project_root }}"
+    volumes:
+      - ./docker/apache/apache2.conf:/etc/apache2/conf-enabled/apache2.conf:ro
+      - ./docker/php/php.ini:/usr/local/etc/php/php.ini
+      - ./:{{ docker_project_root }}
+      # Allow ssh key forwading to work inside docker container
+      - ${SSH_AUTH_SOCK}:/ssh-agent
+    environment:
+      SSH_AUTH_SOCK: /ssh-agent
+    <<: *network
+
+networks:
+  default:
+    external:
+        name: {{ apache_network }}

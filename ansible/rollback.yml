@@ -1,0 +1,25 @@
+---
+- import_playbook: variable-check.yml
+  vars:
+    playbook: rollback.yml
+
+- name: Test Connection
+  hosts: "{{ env }}"
+  gather_facts: false
+  vars:
+    dynamic_user: false
+  roles:
+    - { role: connection, tags: [connection, always] }
+
+- name: Rollback a Deploy
+  hosts: "{{ env }}"
+  pre_tasks:
+    - import_tasks: docker-socket-forwading.yml
+      vars:
+          ssh_start: true
+  post_tasks:
+    - import_tasks: docker-socket-forwading.yml
+      vars:
+          ssh_start: false
+  roles:
+    - rollback

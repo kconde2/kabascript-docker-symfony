@@ -1,0 +1,14 @@
+---
+- name: Ensure necessary variables are defined
+  hosts: localhost
+  gather_facts: false
+  vars:
+    extra_vars_command: "{{ \"site=<domain>\" }}"
+  tasks:
+    - name: Ensure site is defined
+      fail:
+        msg: |
+          Site missing. Use `-e` to define `env`:
+          docker-compose exec master ansible-playbook {{ playbook }} -e {{ extra_vars_command }}
+      when: site is not defined
+      tags: [variable-check]

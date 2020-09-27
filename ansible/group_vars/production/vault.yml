@@ -1,0 +1,15 @@
+---
+vault:
+  # Passwords for databases
+  # https://symfony.com/doc/current/email.html#configuration
+  db_passwords:
+    root: root
+    mysql_password: password
+
+  # The secret app key used by Symfony
+  app_key: "base64:M3K69g0AqUJ2NWMxIqdGrunovDRnepog0qkw8Bev0Dk="
+
+  # SMTP username & password
+  mail:
+    username: email@gmail.com
+    password: "create-this-password"

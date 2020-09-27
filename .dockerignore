@@ -1,0 +1,14 @@
+ansible/group_vars/all/vault.yml
+ansible/group_vars/production/vault.yml
+ansible/group_vars/staging/vault.yml
+ansible/inventory.ini
+ansible/.vault_pass
+
+ansible/.gitignore
+ansible/.editorconfig
+ansible/*/**/__pycache__
+ansible/inventory.ini.exemple
+ansible/vars-overrides.yml
+ansible/test.yml
+ansible/.DS_Store
+.git

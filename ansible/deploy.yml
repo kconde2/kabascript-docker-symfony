@@ -1,0 +1,43 @@
+---
+- import_playbook: variable-check.yml
+  vars:
+    playbook: deploy.yml
+
+- name: Test Connection
+  hosts: "{{ env }}"
+  gather_facts: false
+  vars:
+    dynamic_user: false
+    # user that will use is ansible_user specified in inventory (remove this if you want to selected another user)
+  roles:
+    - { role: connection, tags: [connection, always] }
+
+- name: "Deploying {{ site }} to {{ env }}"
+  hosts: "{{ env }}"
+  pre_tasks:
+    - name: Ensure site is valid
+      delegate_to: localhost
+      fail:
+        msg: "Site `{{ site | default('') }}` is not valid. Available sites to deploy: {{ my_sites.keys() | join(', ') }}"
+      when: my_sites[site | default('')] is not defined
+    - name: Ensure repo is valid
+      delegate_to: localhost
+      fail:
+        msg: |
+          Invalid Git repository.
+          Ensure that your site's `repo` variable is defined in `group_vars/{{ env }}/my_sites.yml` and uses the SSH format (example: git@github.com:roots/bedrock.git)
+          More info:
+          > https://roots.io/trellis/docs/deploys/
+      when: project.repo is not defined or project.repo is not match("^ssh://.+@.+|.+@.+:.+")
+
+    - import_tasks: docker-socket-forwading.yml
+      vars:
+        ssh_start: true
+
+  post_tasks:
+    - import_tasks: docker-socket-forwading.yml
+      vars:
+        ssh_start: false
+
+  roles:
+    - deploy

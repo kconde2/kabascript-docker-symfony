@@ -1,0 +1,45 @@
+---
+- name: Get list position of current symlinked release
+  delegate_to: "{{ deploy_container_name }}"
+  shell: |
+    set -eo pipefail
+    ls releases | grep -n $(basename $(readlink {{ project_current_path }})) | cut -f1 -d:
+  args:
+    chdir: "{{ project_root }}"
+    executable: /bin/bash
+  register: current_release_position
+  changed_when: false
+  tags:
+    - dc_working_dir
+
+- name: Fail if current release is the oldest available release
+  delegate_to: "{{ deploy_container_name }}"
+  fail:
+    msg: "Currently symlinked to earliest available release. Cannot rollback. You may manually specify a different release using --extra-vars='release=12345678901234'."
+  when: current_release_position.stdout_lines[0] == "1"
+  tags:
+    - dc_working_dir
+
+- name: Collect list of releases
+  delegate_to: "{{ deploy_container_name }}"
+  command: ls releases
+  args:
+    chdir: "{{ project_root }}"
+  register: releases
+  changed_when: false
+  tags:
+    - dc_working_dir
+
+- name: Create new_release variable
+  delegate_to: "{{ deploy_container_name }}"
+  set_fact:
+    new_release: "{{ releases.stdout_lines[(current_release_position.stdout_lines[0] | int - 2)] }}"
+  tags:
+    - dc_working_dir
+
+- name: Create new_release_path variable
+  delegate_to: "{{ deploy_container_name }}"
+  set_fact:
+    new_release_path: "{{ project_root }}/releases/{{ new_release }}"
+  tags:
+    - dc_working_dir

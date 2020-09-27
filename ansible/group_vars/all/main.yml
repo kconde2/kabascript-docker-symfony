@@ -1,0 +1,23 @@
+# ansible variables
+ansible_python_interpreter: /usr/bin/python3
+
+# custom variables
+www_root: /var/www/sites
+web_user: deployer
+web_group: deployer
+
+# Docker compose variables
+site_formatted: "{{ site | replace('.', '_') }}"
+container_name_prefix: "{{ site_formatted }}_{{ env }}"
+app_container_name: "{{ container_name_prefix }}_apache"
+deploy_container_name: "{{ container_name_prefix }}_apache_deploy"
+apache_label: "apache_{{ site_formatted }}_{{ env }}"
+local_project_root: "{{ www_root }}/{{ site }}"
+
+docker_forward_socket_host: localhost
+docker_forward_socket_port: 2375
+
+# For backward compatibility, to be removed in Trellis v2.
+site_packagist_org_authentications:
+  - { hostname: repo.packagist.com, username: token, password: "{{ my_sites[site].composer_token | default('') }}" }
+composer_authentications: "{{ site_packagist_org_authentications }}"
