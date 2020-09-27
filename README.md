@@ -14,25 +14,31 @@ Windows user? Not tested Todo :)
 ## Installation
 
 - Copy either `inventory.ini.exemple` into `inventory.ini` and edit it
-- Make sure to setting these files :
+- Make sure to setting these files and variables in it :
 
 ```shell
-ansible/group_vars/all/vault.yml
-ansible/group_vars/production/vault.yml
-ansible/group_vars/staging/vault.yml
+playbooks/group_vars/all/vault.yml
+playbooks/group_vars/production/main.yml
+playbooks/group_vars/production/vault.yml
+playbooks/group_vars/staging/main.yml
+playbooks/group_vars/staging/vault.yml
 ```
 
-Depending on hosts you define in `ìnventory.ini`, update staging in `ansible/group_vars/staging/vault.yml` with the correct host, like this :
+Otherwise you can override any file inside docker container
+
+Depending on hosts you define in `ìnventory.ini`, update staging in `playbooks/group_vars/staging/vault.yml` with the correct **host**, like this :
 
 ```shell
-ansible/group_vars/<host-your-defined-in-inventory>/vault.yml
+playbooks/group_vars/<host-your-defined-in-inventory>/vault.yml
 ```
 
-In case you want to encrypt your vault files and you must, generate one :
+In case you want to encrypt your vault files and you must generate one :
 
 ```shell
 openssl rand -base64 64 > .vault_pass
 ```
+
+If you don't want to, just remove this line `vault_password_file = .vault_pass` inside `ansible.cfg` and map it corresponding file docker volume inside `run.sh`
 
 ## Usage
 

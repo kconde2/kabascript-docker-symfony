@@ -1,7 +1,5 @@
 #!/bin/bash
 
-# make bpush
-
 ACTIONS=(deploy rollback)
 ENVIRONMENTS=(staging production)
 IMAGE=kabaconde/ansible-docker-symfony
@@ -43,9 +41,11 @@ ACTION="$1"; shift
 # Run deployment
 docker run --rm \
     -v ~/.ssh:/tmp/.ssh:ro \
-    -v $(pwd)/ansible/group_vars/all/vault.yml:/root/ansible/group_vars/all/vault.yml \
-    -v $(pwd)/ansible/group_vars/production/vault.yml:/root/ansible/group_vars/production/vault.yml \
-    -v $(pwd)/ansible/group_vars/staging/vault.yml:/root/ansible/group_vars/staging/vault.yml \
-    -v $(pwd)/ansible/inventory.ini:/root/ansible/inventory.ini \
-    -v $(pwd)/ansible/.vault_pass:/root/ansible/.vault_pass \
+    -v $(pwd)/playbooks/group_vars/all/vault.yml:/root/ansible/group_vars/all/vault.yml \
+    -v $(pwd)/playbooks/group_vars/production/main.yml:/root/ansible/group_vars/production/main.yml \
+    -v $(pwd)/playbooks/group_vars/production/vault.yml:/root/ansible/group_vars/production/vault.yml \
+    -v $(pwd)/playbooks/group_vars/staging/main.yml:/root/ansible/group_vars/staging/main.yml \
+    -v $(pwd)/playbooks/group_vars/staging/vault.yml:/root/ansible/group_vars/staging/vault.yml \
+    -v $(pwd)/playbooks/inventory.ini:/root/ansible/inventory.ini \
+    -v $(pwd)/playbooks/.vault_pass:/root/ansible/.vault_pass \
     $IMAGE ./bin/$ACTION.sh $@

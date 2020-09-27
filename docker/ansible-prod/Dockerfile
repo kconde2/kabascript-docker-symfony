@@ -56,7 +56,7 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/*
 
 # Copy ansible deployment code
-COPY ansible /root/ansible
+COPY playbooks /root/ansible
 
 WORKDIR /root/ansible
 ENTRYPOINT ["/bin/mount-ssh.sh"]
