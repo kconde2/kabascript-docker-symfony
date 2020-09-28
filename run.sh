@@ -1,15 +1,18 @@
 #!/bin/bash
 
-IMAGE=kabaconde/ansible-docker:symfony-deployment
+PARENT_PATH=$( cd "$(dirname "${BASH_SOURCE[0]}")" ; pwd -P )
+SYMFONY_DEPLOYMENT_IMAGE=kabaconde/ansible-docker:symfony-deployment
+
+cd "$PARENT_PATH"
 
 # Run deployment
 docker run --rm \
     -v ~/.ssh:/tmp/.ssh:ro \
-    -v $(pwd)/playbooks/group_vars/all/vault.yml:/ansible/group_vars/all/vault.yml \
-    -v $(pwd)/playbooks/group_vars/production/main.yml:/ansible/group_vars/production/main.yml \
-    -v $(pwd)/playbooks/group_vars/production/vault.yml:/ansible/group_vars/production/vault.yml \
-    -v $(pwd)/playbooks/group_vars/staging/main.yml:/ansible/group_vars/staging/main.yml \
-    -v $(pwd)/playbooks/group_vars/staging/vault.yml:/ansible/group_vars/staging/vault.yml \
-    -v $(pwd)/playbooks/inventory.ini:/ansible/inventory.ini \
-    -v $(pwd)/playbooks/.vault_pass:/ansible/.vault_pass \
-    $IMAGE ./bin/action.sh $@
+    -v $PARENT_PATH/playbooks/group_vars/all/vault.yml:/ansible/group_vars/all/vault.yml \
+    -v $PARENT_PATH/playbooks/group_vars/production/main.yml:/ansible/group_vars/production/main.yml \
+    -v $PARENT_PATH/playbooks/group_vars/production/vault.yml:/ansible/group_vars/production/vault.yml \
+    -v $PARENT_PATH/playbooks/group_vars/staging/main.yml:/ansible/group_vars/staging/main.yml \
+    -v $PARENT_PATH/playbooks/group_vars/staging/vault.yml:/ansible/group_vars/staging/vault.yml \
+    -v $PARENT_PATH/playbooks/inventory.ini:/ansible/inventory.ini \
+    -v $PARENT_PATH/playbooks/.vault_pass:/ansible/.vault_pass \
+    $SYMFONY_DEPLOYMENT_IMAGE ./bin/action.sh $@

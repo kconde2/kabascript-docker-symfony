@@ -5,5 +5,7 @@
 
 - name: Create SSH tunnel for docker socket forwading
   delegate_to: localhost
-  shell: ssh -fNL {{ docker_forward_socket_host }}:{{ docker_forward_socket_port }}:/var/run/docker.sock deployer@{{ hostvars[inventory_hostname].inventory_hostname }} -v
+  shell: ssh -i {{ hostvars[inventory_hostname].ansible_ssh_private_key_file }} \
+            -fNL {{ docker_forward_socket_host }}:{{ docker_forward_socket_port }}:/var/run/docker.sock \
+            {{ hostvars[inventory_hostname].ansible_ssh_user }}@{{ inventory_hostname }} -v
   when: ssh_start

@@ -7,7 +7,7 @@ playbooks/.vault_pass
 playbooks/.gitignore
 playbooks/.editorconfig
 playbooks/*/**/__pycache__
-playbooks/inventory.ini.exemple
+playbooks/inventory.ini.example
 playbooks/vars-overrides.yml
 playbooks/test.yml
 playbooks/.DS_Store

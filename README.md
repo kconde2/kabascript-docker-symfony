@@ -26,6 +26,8 @@ playbooks/group_vars/staging/vault.yml
 
 Otherwise you can override any file inside docker container
 
+- Generate SSH key pair `ssh-keygen -t rsa` by naming `project_name_deploy` it according to your `ansible_ssh_private_key_file=~/.ssh/project_name_deploy` inside `inventory.ini` file
+
 Depending on hosts you define in `ìnventory.ini`, update staging in `playbooks/group_vars/staging/vault.yml` with the correct **host**, like this :
 
 ```shell

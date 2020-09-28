@@ -1,5 +1,0 @@
-[staging]
-100.26.161.193 ansible_ssh_user=deployer
-
-[production]
-100.26.161.194 ansible_ssh_user=deployer
