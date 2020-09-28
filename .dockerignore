@@ -1,14 +1,14 @@
-ansible/group_vars/all/vault.yml
-ansible/group_vars/production/vault.yml
-ansible/group_vars/staging/vault.yml
-ansible/inventory.ini
-ansible/.vault_pass
+playbooks/group_vars/all/vault.yml
+playbooks/group_vars/production/vault.yml
+playbooks/group_vars/staging/vault.yml
+playbooks/inventory.ini
+playbooks/.vault_pass
 
-ansible/.gitignore
-ansible/.editorconfig
-ansible/*/**/__pycache__
-ansible/inventory.ini.exemple
-ansible/vars-overrides.yml
-ansible/test.yml
-ansible/.DS_Store
+playbooks/.gitignore
+playbooks/.editorconfig
+playbooks/*/**/__pycache__
+playbooks/inventory.ini.exemple
+playbooks/vars-overrides.yml
+playbooks/test.yml
+playbooks/.DS_Store
 .git

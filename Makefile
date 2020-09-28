@@ -1,3 +1,5 @@
+DEPLOYMENT=kabaconde/ansible-docker:symfony-deployment
+
 idt:
 	docker-compose exec ansible ansible-playbook server.yml --tags="mysql, pma"
 iall:
@@ -33,5 +35,5 @@ decrypt-vault:
 	docker-compose run --rm ansible ansible-vault decrypt group_vars/production/vault.yml
 
 bpush:
-	docker build --squash --tag kabaconde/ansible-docker-symfony --file `pwd`/docker/ansible-prod/Dockerfile `pwd`
-	docker push kabaconde/ansible-docker-symfony
+	docker build --squash --tag $(DEPLOYMENT) --file `pwd`/docker/python/Dockerfile `pwd` --build-arg IS_DEV=false
+	docker push $(DEPLOYMENT)
