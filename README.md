@@ -40,7 +40,17 @@ In case you want to encrypt your vault files and you must generate one :
 openssl rand -base64 64 > .vault_pass
 ```
 
-If you don't want to, just remove this line `vault_password_file = .vault_pass` inside `ansible.cfg` and map it corresponding file docker volume inside `run.sh`
+If you don't want to, just remove this line `vault_password_file = .vault_pass` inside `ansible.cfg` and remove it corresponding file docker volume inside `run.sh`
+
+- Also update `vault.sh` to fit your need
+
+*Note*
+
+Only of mapping all keys inside your `~/.ssh` directory You can map only one key inside `run.sh` like this
+
+```shell
+-v ~/.ssh/project_name_deploy:/tmp/.ssh/project_name_deploy:ro \
+```
 
 ## Usage
 
