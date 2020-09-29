@@ -1,0 +1,5 @@
+[staging]
+100.26.161.193 ansible_ssh_user=deployer ansible_ssh_private_key_file=~/.ssh/project_name_deploy
+
+[production]
+100.26.161.194 ansible_ssh_user=deployer ansible_ssh_private_key_file=~/.ssh/project_name_deploy

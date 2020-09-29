@@ -69,7 +69,7 @@
 
 - name: Build front production assets
   delegate_to: "{{ deploy_container_name }}"
-  shell: "yarn run production"
+  shell: "yarn run build"
   args:
     chdir: "{{ deploy_helper.new_release_path }}"
   when: env == 'production'

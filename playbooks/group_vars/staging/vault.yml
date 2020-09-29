@@ -2,11 +2,7 @@
 vault:
   # Passwords for databases
   db_passwords:
-    root: root
     mysql_password: root
-
-  # The secret app key used by Symfony
-  app_key: "base64:X3K69g0qqUJ2NWMxIqdGrunovDRnepog0qkw8Bev0Dk="
 
   # SMTP username & password
   mail:

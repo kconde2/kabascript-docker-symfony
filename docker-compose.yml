@@ -2,12 +2,10 @@ version: "3"
 
 services:
     ansible:
-        build:
-            context: .
-            dockerfile: ./docker/ansible-dev/Dockerfile
-        working_dir: /root/ansible
+        image: kabaconde/ansible-docker:deployment
+        working_dir: /ansible
         volumes:
-            - ./ansible:/root/ansible
+            - ./playbooks:/ansible
             - ~/.ssh:/tmp/.ssh:ro
         command: tail -f /dev/null && /bin/mount-ssh.sh
         environment:
