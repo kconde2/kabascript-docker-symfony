@@ -52,7 +52,8 @@ ENV="$1"; shift
 SITE="$1"; shift
 EXTRA_PARAMS=$@
 DEPLOY_CMD="ansible-playbook $ACTION.yml -e env=$ENV -e site=$SITE $EXTRA_PARAMS"
-HOSTS_FILE="$PWD/inventory.ini"
+PARENT_PATH=$( cd "$(dirname "${BASH_SOURCE[0]}")" ; pwd -P )
+HOSTS_FILE="$PARENT_PATH/../inventory.ini"
 
 if [[ ! -e $HOSTS_FILE ]]; then
   echo "Error: $ENV is not a valid environment ($HOSTS_FILE does not exist)."
