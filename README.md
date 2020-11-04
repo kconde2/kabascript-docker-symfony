@@ -46,7 +46,7 @@ If you don't want to, just remove this line `vault_password_file = .vault_pass` 
 
 *Note*
 
-Only of mapping all keys inside your `~/.ssh` directory You can map only one key inside `run.sh` like this
+Instead of mapping all keys inside your `~/.ssh` directory You can map only one key inside `run.sh` like this
 
 ```shell
 -v ~/.ssh/project_name_deploy:/tmp/.ssh/project_name_deploy:ro \
@@ -61,7 +61,7 @@ Only of mapping all keys inside your `~/.ssh` directory You can map only one key
 Example :
 
 ```shell
-./run.sh staging example.com -v
+./run.sh deploy staging example.com -v
 ```
 
 ## Know issues
