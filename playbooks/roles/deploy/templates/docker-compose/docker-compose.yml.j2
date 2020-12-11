@@ -20,7 +20,7 @@ services:
       - "traefik.http.routers.{{ apache_label }}.rule=Host(`{{ site }}`)"
       - "traefik.http.routers.{{ apache_label }}.tls.certresolver=leresolver"
       - "traefik.http.routers.{{ apache_label }}.entrypoints=websecure"
-{% if env == 'staging' %}
+{% if env == 'uat' %}
       # Authentication
       - traefik.http.routers.{{ apache_label }}.middlewares={{ apache_label }}_auth
       - traefik.http.middlewares.{{ apache_label }}_auth.basicauth.users={{ apache_auth }}

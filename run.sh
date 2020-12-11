@@ -11,8 +11,8 @@ docker run --rm \
     -v $PARENT_PATH/playbooks/group_vars/all/vault.yml:/ansible/group_vars/all/vault.yml \
     -v $PARENT_PATH/playbooks/group_vars/production/main.yml:/ansible/group_vars/production/main.yml \
     -v $PARENT_PATH/playbooks/group_vars/production/vault.yml:/ansible/group_vars/production/vault.yml \
-    -v $PARENT_PATH/playbooks/group_vars/staging/main.yml:/ansible/group_vars/staging/main.yml \
-    -v $PARENT_PATH/playbooks/group_vars/staging/vault.yml:/ansible/group_vars/staging/vault.yml \
+    -v $PARENT_PATH/playbooks/group_vars/uat/main.yml:/ansible/group_vars/uat/main.yml \
+    -v $PARENT_PATH/playbooks/group_vars/uat/vault.yml:/ansible/group_vars/uat/vault.yml \
     -v $PARENT_PATH/playbooks/inventory.ini:/ansible/inventory.ini \
     -v $PARENT_PATH/playbooks/.vault_pass:/ansible/.vault_pass \
     $SYMFONY_DEPLOYMENT_IMAGE ./bin/action.sh $@

@@ -10,6 +10,7 @@
     project_src: "{{ local_project_root }}"
     restarted: yes
     state: present
+    build: yes
     services:
       - apache
   tags:

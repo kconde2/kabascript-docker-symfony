@@ -1,7 +1,7 @@
 ---
 - name: Create apache_network variable for {{ env }} environnement
   set_fact:
-    apache_network: "{% if env == 'staging' %} 'ot_staging_network' {% elif env == 'production' %} 'ot_network' {% endif %}"
+    apache_network: "{% if env == 'uat' %} 'ot_uat_network' {% elif env == 'production' %} 'ot_network' {% endif %}"
 
 # https://stackoverflow.com/questions/41667864/can-the-templates-module-handle-multiple-templates-directories
 - name: Ensure directory structure exists - (Docker-Compose Directories)
@@ -27,6 +27,7 @@
     project_src: "{{ local_project_root }}"
     restarted: yes
     state: present
+    build: yes
     services:
       - apache-deploy
 

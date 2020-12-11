@@ -53,7 +53,7 @@
   shell: "composer install"
   args:
     chdir: "{{ deploy_helper.new_release_path }}"
-  when: env == 'staging'
+  when: env == 'uat'
 
 - name: Build FOS JS routes
   delegate_to: "{{ deploy_container_name }}"
@@ -79,4 +79,4 @@
   shell: "yarn run dev"
   args:
     chdir: "{{ deploy_helper.new_release_path }}"
-  when: env == 'staging'
+  when: env == 'uat'

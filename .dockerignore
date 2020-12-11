@@ -1,6 +1,6 @@
 playbooks/group_vars/all/vault.yml
 playbooks/group_vars/production/vault.yml
-playbooks/group_vars/staging/vault.yml
+playbooks/group_vars/uat/vault.yml
 playbooks/inventory.ini
 playbooks/.vault_pass
 

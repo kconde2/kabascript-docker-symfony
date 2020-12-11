@@ -42,7 +42,7 @@ $CMD
 docker exec -it $CONTAINER_NAME bash -c "
     ansible-vault $ACTION group_vars/all/vault.yml -vvvv --vault-password-file=.vault_pass
     ansible-vault $ACTION group_vars/production/vault.yml -vvvv --vault-password-file=.vault_pass
-    ansible-vault $ACTION group_vars/staging/vault.yml -vvvv --vault-password-file=.vault_pass
+    ansible-vault $ACTION group_vars/uat/vault.yml -vvvv --vault-password-file=.vault_pass
     "
 
 # Stop and remove container

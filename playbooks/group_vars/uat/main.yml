@@ -1,5 +1,5 @@
 my_sites:
-  staging.example.com:
+  uat.example.com:
     repo: git@gitlab.com:example/example.git # replace with your Git repo URL
     repo_subtree_path: "app" # app, api, etc...
     branch: develop

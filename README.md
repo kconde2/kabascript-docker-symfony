@@ -1,6 +1,6 @@
 # KabaScript for Dockerized Symfony Application
 
-KabaScript for Dockerized Symfony Application is set of Ansible playbooks to make symfony deployment easy, secured and reusable with Docker in production or staging servers.
+KabaScript for Dockerized Symfony Application is set of Ansible playbooks to make symfony deployment easy, secured and reusable with Docker in production or uat servers.
 
 ## Requirements
 
@@ -20,15 +20,15 @@ Windows user? Not tested Todo :)
 playbooks/group_vars/all/vault.yml
 playbooks/group_vars/production/main.yml
 playbooks/group_vars/production/vault.yml
-playbooks/group_vars/staging/main.yml
-playbooks/group_vars/staging/vault.yml
+playbooks/group_vars/uat/main.yml
+playbooks/group_vars/uat/vault.yml
 ```
 
 Otherwise you can override any file inside docker container
 
 - Generate SSH key pair `ssh-keygen -t rsa` by naming `project_name_deploy` it according to your `ansible_ssh_private_key_file=~/.ssh/project_name_deploy` inside `inventory.ini` file
 
-Depending on hosts you define in `ìnventory.ini`, update staging in `playbooks/group_vars/staging/vault.yml` with the correct **host**, like this :
+Depending on hosts you define in `ìnventory.ini`, update uat in `playbooks/group_vars/uat/vault.yml` with the correct **host**, like this :
 
 ```shell
 playbooks/group_vars/<host-your-defined-in-inventory>/vault.yml
@@ -61,7 +61,7 @@ Instead of mapping all keys inside your `~/.ssh` directory You can map only one 
 Example :
 
 ```shell
-./run.sh deploy staging example.com -v
+./run.sh deploy uat example.com -v
 ```
 
 ## Know issues
@@ -82,7 +82,7 @@ Inside Docker container, we have to make sure `ssh_add` is working to be able to
 docker-compose exec master zsh
 eval "$(ssh-agent -s)"
 ssh-add
-ansible-playbook deploy.yml -e env=staging -e site=google.dev.site.com
+ansible-playbook deploy.yml -e env=uat -e site=google.dev.site.com
 ```
 
 ## Resources
