@@ -14,30 +14,25 @@
 
 - name: "Deploying {{ site }} to {{ env }}"
   hosts: "{{ env }}"
+  become: true
   pre_tasks:
+    - name: Generate unique config ID
+      set_fact:
+        random_config_id: "{{ 10000 | random }}"
+        run_once: yes
     - name: Ensure site is valid
       delegate_to: localhost
       fail:
         msg: "Site `{{ site | default('') }}` is not valid. Available sites to deploy: {{ my_sites.keys() | join(', ') }}"
       when: my_sites[site | default('')] is not defined
-    - name: Ensure repo is valid
-      delegate_to: localhost
-      fail:
-        msg: |
-          Invalid Git repository.
-          Ensure that your site's `repo` variable is defined in `group_vars/{{ env }}/my_sites.yml` and uses the SSH format (example: git@github.com:roots/bedrock.git)
-          More info:
-          > https://roots.io/trellis/docs/deploys/
-      when: project.repo is not defined or project.repo is not match("^ssh://.+@.+|.+@.+:.+")
-
-    - import_tasks: docker-socket-forwading.yml
-      vars:
-        ssh_start: true
-
-  post_tasks:
-    - import_tasks: docker-socket-forwading.yml
-      vars:
-        ssh_start: false
-
+    # - name: Ensure repo is valid
+    #   delegate_to: localhost
+    #   fail:
+    #     msg: |
+    #       Invalid Git repository.
+    #       Ensure that your site's `repo` variable is defined in `group_vars/{{ env }}/my_sites.yml` and uses the SSH format (example: git@github.com:roots/bedrock.git)
+    #       More info:
+    #       > https://roots.io/trellis/docs/deploys/
+    #   when: project.repo is not defined or project.repo is not match("^ssh://.+@.+|.+@.+:.+")
   roles:
     - deploy

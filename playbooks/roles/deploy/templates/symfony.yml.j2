@@ -1,0 +1,52 @@
+version: '3.8'
+
+services:
+  apache:
+    image: "{{ project.app_image }}"
+    networks:
+      - traefik-public
+    deploy:
+      replicas: 4
+      update_config:
+        parallelism: 2
+        order: start-first
+        failure_action: rollback
+        delay: 10s
+      rollback_config:
+        parallelism: 0
+        order: stop-first
+      restart_policy:
+        condition: any
+        delay: 3s
+        max_attempts: 3
+        window: 10s
+      labels:
+        - traefik.enable=true
+        - traefik.docker.network=traefik-public
+        - traefik.http.routers.{{ site_traefik_label }}.rule=Host("{{ site }}")
+        - traefik.http.routers.{{ site_traefik_label }}.tls.certresolver=leresolver
+        - traefik.http.routers.{{ site_traefik_label }}.entrypoints=websecure
+        - traefik.http.services.{{ site_traefik_label }}.loadbalancer.server.port=80
+{% if env == 'uat' %}
+        # Authentication
+        - traefik.http.routers.{{ site_traefik_label }}.middlewares={{ site_traefik_label }}_auth
+        - traefik.http.middlewares.{{ site_traefik_label }}_auth.basicauth.users={{ site_basic_auth }}
+{% endif %}
+    configs:
+      - source: "{{ unique_symfony_env_config }}"
+        target: /app/.env.local
+        mode: 0555
+    healthcheck:
+      test: "curl -X GET -sf http://localhost/api || exit 1"
+      interval: 5s
+      timeout: 10s
+      retries: 3
+      start_period: 5s
+
+networks:
+  traefik-public:
+    external: true
+
+configs:
+  {{ unique_symfony_env_config }}:
+    external: true

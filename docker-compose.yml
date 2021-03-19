@@ -6,7 +6,7 @@ services:
         working_dir: /ansible
         volumes:
             - ./playbooks:/ansible
-            - ~/.ssh:/tmp/.ssh:ro
+            - ~/.ssh/azure.pem:/tmp/.ssh/azure.pem:ro
         command: tail -f /dev/null && /bin/mount-ssh.sh
         environment:
             ANSIBLE_STDOUT_CALLBACK: debug

@@ -10,12 +10,8 @@ web_group: deployer
 site_formatted: "{{ site | replace('.', '_') }}"
 container_name_prefix: "{{ site_formatted }}_{{ env }}"
 app_container_name: "{{ container_name_prefix }}_apache"
-deploy_container_name: "{{ container_name_prefix }}_apache_deploy"
-apache_label: "apache_{{ site_formatted }}_{{ env }}"
+site_traefik_label: "apache_{{ site_formatted }}_{{ env }}"
 local_project_root: "{{ www_root }}/{{ site }}"
-
-docker_forward_socket_host: localhost
-docker_forward_socket_port: 2375
 
 # For backward compatibility, to be removed in Trellis v2.
 site_packagist_org_authentications:
