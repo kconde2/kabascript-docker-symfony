@@ -28,22 +28,6 @@
   with_filetree: "{{ docker_compose_templates_source }}"
   when: item.state == 'file'
 
-- name: Get remote config file
-  slurp:
-    src: "{{ local_project_root + '/env.local' }}"
-  register: remote_config
-
-- name: Create or update docker config
-  docker_config:
-    name: "{{ unique_symfony_env_config }}"
-    data: "{{ remote_config['content'] | b64decode }}"
-    debug: yes
-    state: present
-
-# - name: Print returned information
-#   debug:
-#     msg: "{{ remote_config['content'] | b64decode }}"
-
 - name: Deploy symfony
   docker_stack:
     state: present
@@ -51,6 +35,10 @@
     compose:
       - "{{ local_project_root }}/symfony.yml"
   register: "deploy_symfony_output"
+
+# - name: "Deploy symfony {{ site }}"
+#   shell: "docker stack deploy --compose-file {{ local_project_root }}/symfony.yml {{ site_formatted }}"
+#   register: "deploy_symfony_output"
 
 - name: "Print create and start {{ site }}"
   debug:

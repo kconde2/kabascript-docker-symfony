@@ -1,10 +1,34 @@
 version: '3.8'
 
+configs:
+  my_config:
+    name: {{ env }}_sf_config
+    file: "{{ local_project_root + '/env.local' }}"
+
+volumes:
+  mysql-data:
+  mysql-data:
+
+networks:
+  traefik-public:
+    external: true
+
 services:
   apache:
     image: "{{ project.app_image }}"
     networks:
       - traefik-public
+    configs:
+      - source: my_config
+        target: /app/.env.local
+        mode: 0555
+    healthcheck:
+      interval: 1m30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    depends_on:
+      - db_{{ env }}
     deploy:
       replicas: 4
       update_config:
@@ -32,21 +56,27 @@ services:
         - traefik.http.routers.{{ site_traefik_label }}.middlewares={{ site_traefik_label }}_auth
         - traefik.http.middlewares.{{ site_traefik_label }}_auth.basicauth.users={{ site_basic_auth }}
 {% endif %}
-    configs:
-      - source: "{{ unique_symfony_env_config }}"
-        target: /app/.env.local
-        mode: 0555
+
+  db_{{ env }}:
+    image: mysql:8
+    networks:
+      - traefik-public
+    deploy:
+      placement:
+        constraints:
+          - node.role == manager
+      restart_policy:
+        condition: any
+        delay: 3s
+        max_attempts: 3
+        window: 10s
+    command:
+      - "--default-authentication-plugin=mysql_native_password"
+      - "--lower_case_table_names=1"
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE={{ db_name }}
     healthcheck:
-      test: "curl -X GET -sf http://localhost/api || exit 1"
-      interval: 5s
-      timeout: 10s
-      retries: 3
-      start_period: 5s
-
-networks:
-  traefik-public:
-    external: true
-
-configs:
-  {{ unique_symfony_env_config }}:
-    external: true
+      test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
