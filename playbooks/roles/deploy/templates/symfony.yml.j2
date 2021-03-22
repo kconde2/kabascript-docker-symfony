@@ -6,29 +6,20 @@ configs:
     file: "{{ local_project_root + '/env.local' }}"
 
 volumes:
-  mysql-data:
-  mysql-data:
+  api_var_data:
+  db_data:
 
 networks:
   traefik-public:
     external: true
 
 services:
-  apache:
+  app:
     image: "{{ project.app_image }}"
+    depends_on:
+      - api_{{ env }}
     networks:
       - traefik-public
-    configs:
-      - source: my_config
-        target: /app/.env.local
-        mode: 0555
-    healthcheck:
-      interval: 1m30s
-      timeout: 10s
-      retries: 3
-      start_period: 30s
-    depends_on:
-      - db_{{ env }}
     deploy:
       replicas: 4
       update_config:
@@ -47,14 +38,59 @@ services:
       labels:
         - traefik.enable=true
         - traefik.docker.network=traefik-public
-        - traefik.http.routers.{{ site_traefik_label }}.rule=Host("{{ site }}")
-        - traefik.http.routers.{{ site_traefik_label }}.tls.certresolver=leresolver
-        - traefik.http.routers.{{ site_traefik_label }}.entrypoints=websecure
-        - traefik.http.services.{{ site_traefik_label }}.loadbalancer.server.port=80
+        - traefik.http.routers.app_{{ site_traefik_label }}.rule=Host("app.{{ site }}") || Host("www.app.{{ site }}")
+        - traefik.http.routers.app_{{ site_traefik_label }}.tls.certresolver=leresolver
+        - traefik.http.routers.app_{{ site_traefik_label }}.entrypoints=websecure
+        - traefik.http.services.app_{{ site_traefik_label }}.loadbalancer.server.port=3000
 {% if env == 'uat' %}
         # Authentication
-        - traefik.http.routers.{{ site_traefik_label }}.middlewares={{ site_traefik_label }}_auth
-        - traefik.http.middlewares.{{ site_traefik_label }}_auth.basicauth.users={{ site_basic_auth }}
+        - traefik.http.routers.app_{{ site_traefik_label }}.middlewares=app_{{ site_traefik_label }}_auth
+        - traefik.http.middlewares.app_{{ site_traefik_label }}_auth.basicauth.users={{ site_basic_auth }}
+{% endif %}
+
+  api_{{ env }}:
+    image: "{{ project.api_image }}"
+    networks:
+      - traefik-public
+    configs:
+      - source: my_config
+        target: /app/.env.local
+        mode: 0555
+    healthcheck:
+      interval: 1m30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    depends_on:
+      - db_{{ env }}
+    volumes:
+      - api_var_data:/app/var:rw
+    deploy:
+      replicas: 4
+      update_config:
+        parallelism: 2
+        order: start-first
+        failure_action: rollback
+        delay: 10s
+      rollback_config:
+        parallelism: 0
+        order: stop-first
+      restart_policy:
+        condition: any
+        delay: 3s
+        max_attempts: 3
+        window: 10s
+      labels:
+        - traefik.enable=true
+        - traefik.docker.network=traefik-public
+        - traefik.http.routers.api_{{ site_traefik_label }}.rule=Host("{{ site }}")
+        - traefik.http.routers.api_{{ site_traefik_label }}.tls.certresolver=leresolver
+        - traefik.http.routers.api_{{ site_traefik_label }}.entrypoints=websecure
+        - traefik.http.services.api_{{ site_traefik_label }}.loadbalancer.server.port=80
+{% if env == 'uat' %}
+        # Authentication
+        - traefik.http.routers.api_{{ site_traefik_label }}.middlewares=api_{{ site_traefik_label }}_auth
+        - traefik.http.middlewares.api_{{ site_traefik_label }}_auth.basicauth.users={{ site_basic_auth }}
 {% endif %}
 
   db_{{ env }}:
@@ -65,14 +101,11 @@ services:
       placement:
         constraints:
           - node.role == manager
-      restart_policy:
-        condition: any
-        delay: 3s
-        max_attempts: 3
-        window: 10s
+    volumes:
+      - db_data:/var/lib/mysql:rw
     command:
-      - "--default-authentication-plugin=mysql_native_password"
-      - "--lower_case_table_names=1"
+      - --default-authentication-plugin=mysql_native_password
+      - --lower_case_table_names=1
     environment:
       - MYSQL_ROOT_PASSWORD=root
       - MYSQL_DATABASE={{ db_name }}
