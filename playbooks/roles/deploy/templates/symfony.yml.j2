@@ -16,8 +16,6 @@ networks:
 services:
   app:
     image: "{{ project.app_image }}"
-    depends_on:
-      - api_{{ env }}
     networks:
       - traefik-public
     deploy:
@@ -38,7 +36,7 @@ services:
       labels:
         - traefik.enable=true
         - traefik.docker.network=traefik-public
-        - traefik.http.routers.app_{{ site_traefik_label }}.rule=Host("app.{{ site }}") || Host("www.app.{{ site }}")
+        - traefik.http.routers.app_{{ site_traefik_label }}.rule=Host("{{ site }}") || Host("www.{{ site }}")
         - traefik.http.routers.app_{{ site_traefik_label }}.tls.certresolver=leresolver
         - traefik.http.routers.app_{{ site_traefik_label }}.entrypoints=websecure
         - traefik.http.services.app_{{ site_traefik_label }}.loadbalancer.server.port=3000
@@ -61,8 +59,6 @@ services:
       timeout: 10s
       retries: 3
       start_period: 30s
-    depends_on:
-      - db_{{ env }}
     volumes:
       - api_var_data:/app/var:rw
     deploy:
@@ -83,7 +79,7 @@ services:
       labels:
         - traefik.enable=true
         - traefik.docker.network=traefik-public
-        - traefik.http.routers.api_{{ site_traefik_label }}.rule=Host("{{ site }}")
+        - traefik.http.routers.api_{{ site_traefik_label }}.rule=Host("api.{{ site }}")
         - traefik.http.routers.api_{{ site_traefik_label }}.tls.certresolver=leresolver
         - traefik.http.routers.api_{{ site_traefik_label }}.entrypoints=websecure
         - traefik.http.services.api_{{ site_traefik_label }}.loadbalancer.server.port=80

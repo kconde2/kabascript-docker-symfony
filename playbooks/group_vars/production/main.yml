@@ -1,5 +1,5 @@
 my_sites:
-  prod.dev.kabaconde.com:
+  plazadiamant.com:
     app_image: kabaconde/plaza:app-prod
     api_image: kabaconde/plaza:api-prod
     env:

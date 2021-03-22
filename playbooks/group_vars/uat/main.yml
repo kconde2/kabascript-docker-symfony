@@ -1,5 +1,5 @@
 my_sites:
-  uat.dev.kabaconde.com:
+  uat.plazadiamant.com:
     app_image: kabaconde/plaza:app-uat
     api_image: kabaconde/plaza:api-uat
     env:

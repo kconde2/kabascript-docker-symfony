@@ -3,7 +3,7 @@ project: "{{ my_sites[site] }}"
 
 docker_compose_templates_source: ../templates
 
-site_basic_auth_user: user
+site_basic_auth_user: plazadtest
 site_basic_auth: "{{ site_basic_auth_user }}:{{ vault_basic_auth_password | docker_composer_password_hash }}"
 unique_symfony_env_config: "{{ site_formatted }}_config_env_{{ random_config_id }}"
 db_name: "plazadiamant_{{ env }}"
