@@ -85,6 +85,16 @@ ssh-add
 ansible-playbook deploy.yml -e env=uat -e site=google.dev.site.com
 ```
 
+# SSH COPY
+
+```shell
+cat ~/.ssh/your_deploy.pub | ssh -i ~/.ssh/azure.pem ubuntu@20.188.62.225 'cat >> .ssh/authorized_keys && echo "Key copied"'
+```
+
+```shell
+ssh-copy-id -i ~/.ssh/your_deploy.pub ubuntu@20.188.62.225
+```
+
 ## Resources
 
 - [Configure ansible ubuntu](https://www.digitalocean.com/community/tutorials/how-to-install-and-configure-ansible-on-ubuntu-18-04)

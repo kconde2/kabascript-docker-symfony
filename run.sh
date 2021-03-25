@@ -7,6 +7,7 @@ cd "$PARENT_PATH"
 
 # Run deployment
 docker run --rm \
+    -e ANSIBLE_STDOUT_CALLBACK=debug \
     -v ~/.ssh:/tmp/.ssh:ro \
     -v $PARENT_PATH/playbooks/group_vars/all/vault.yml:/ansible/group_vars/all/vault.yml \
     -v $PARENT_PATH/playbooks/group_vars/production/main.yml:/ansible/group_vars/production/main.yml \

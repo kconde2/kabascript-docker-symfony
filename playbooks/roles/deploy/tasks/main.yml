@@ -1,18 +1,45 @@
-- include_tasks: "{{ include_path }}"
-  with_items: "{{ deploy_before | default([]) }}"
-  loop_control:
-    loop_var: include_path
-  tags: deploy-before
+---
+- name: "Ensures {{ site }} dir exists"
+  file:
+    path: "{{ local_project_root }}"
+    state: directory
 
-- import_tasks: initialize.yml
-- import_tasks: update.yml
-- import_tasks: prepare.yml
-- import_tasks: share.yml
-- import_tasks: build.yml
-- import_tasks: finalize.yml
+- name: "Creating {{ site }} symfony.yml file"
+  template:
+    src: symfony.yml.j2
+    dest: "{{ local_project_root }}/symfony.yml"
 
-- include_tasks: "{{ include_path }}"
-  with_items: "{{ deploy_after | default([]) }}"
-  loop_control:
-    loop_var: include_path
-  tags: deploy-after
+# https://stackoverflow.com/questions/41667864/can-the-templates-module-handle-multiple-templates-directories
+- name: Ensure directory structure exists - (Docker-Compose Directories)
+  file:
+    path: "{{ local_project_root }}/{{ item.path }}"
+    state: directory
+    group: "{{ web_group }}"
+    owner: "{{ web_user }}"
+  with_filetree: "{{ docker_compose_templates_source }}"
+  when: item.state == 'directory'
+
+- name: Ensure files are populated from templates - (Docker-Compose Files)
+  template:
+    src: "{{ item.src }}"
+    dest: '{{ local_project_root }}/{{ item.path | regex_replace("\.j2$", "") }}'
+    group: "{{ web_group }}"
+    owner: "{{ web_user }}"
+  with_filetree: "{{ docker_compose_templates_source }}"
+  when: item.state == 'file'
+
+- name: Deploy symfony
+  docker_stack:
+    state: present
+    name: "{{ site_formatted }}"
+    compose:
+      - "{{ local_project_root }}/symfony.yml"
+  register: "deploy_symfony_output"
+
+# - name: "Deploy symfony {{ site }}"
+#   shell: "docker stack deploy --compose-file {{ local_project_root }}/symfony.yml {{ site_formatted }}"
+#   register: "deploy_symfony_output"
+
+- name: "Print create and start {{ site }}"
+  debug:
+    var: "deploy_symfony_output"
